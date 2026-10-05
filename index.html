@@ -1,1 +1,280 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOW Reviews | Customer Feedback</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--blue:#155eef;--navy:#10254b;--pale:#f2f7ff;--line:#e0e8f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--navy);background:#fff}
+header{height:72px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{font-size:22px;font-weight:800;color:var(--blue)}
+.brand span{background:var(--blue);color:white;padding:8px 12px;border-radius:10px;margin-right:8px}
+button,.btn{cursor:pointer;border:0;border-radius:9px;padding:12px 17px;font-weight:700;text-decoration:none;display:inline-block}
+.primary{background:var(--blue);color:#fff}
+.outline{background:white;border:1px solid #cbd9f0;color:var(--blue)}
+.hero{background:linear-gradient(120deg,#f1f6ff,#fff);padding:70px 8%;display:grid;grid-template-columns:1.2fr .8fr;gap:35px;align-items:center}
+.eyebrow{color:var(--blue);font-weight:800;font-size:12px;letter-spacing:2px}
+h1{font-size:clamp(38px,5vw,60px);line-height:1.08;letter-spacing:-2px;margin:16px 0}
+h1 span{color:var(--blue)}
+p{color:#687995;line-height:1.7}
+.preview,.panel,.metric{background:#fff;border:1px solid var(--line);border-radius:17px;padding:25px;box-shadow:0 12px 35px #1b4b9410}
+.stars{font-size:34px;color:#f4b52a;letter-spacing:4px}
+main section.content{padding:55px 8%;background:var(--pale)}
+.center{text-align:center;margin-bottom:25px}
+.panel{max-width:760px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:15px}
+input,textarea,select{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #d8e2f0;border-radius:8px;font:inherit;outline-color:#8bb2ff;background:#fff}
+textarea{resize:vertical}
+.wide{grid-column:1/-1}
+.rate button{font-size:29px;background:#edf3ff;color:#aab7cc;padding:5px 9px;margin:5px 2px}
+.rate button.active{color:#f3b32c;background:#fff4d6}
+.small{font-size:12px;color:#78879d}
+#admin{background:#fff}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.metric strong{display:block;font-size:28px;color:var(--blue);margin-top:10px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.toolbar input{flex:1;min-width:180px;margin:0}
+.tablewrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:650px;font-size:13px}
+th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line)}
+th{background:#f2f6ff}
+td a{color:var(--blue);font-weight:bold}
+.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:#10254b99;display:grid;place-items:center;padding:18px;z-index:4}
+.modal .panel{width:100%;max-width:400px;position:relative}
+footer{padding:25px 7%;font-size:12px;color:#74829a;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#message{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10254b;color:white;padding:13px 18px;border-radius:10px;display:none;z-index:10;max-width:90%;font-size:13px}
+@media(max-width:700px){
+ header{padding:0 5%;height:65px}.brand{font-size:17px}
+ .hero{grid-template-columns:1fr;padding:45px 6%;gap:25px}
+ main section.content{padding:40px 5%}
+ .grid{grid-template-columns:1fr}.wide{grid-column:auto}
+ .metrics{grid-template-columns:1fr 1fr}
+ h1{letter-spacing:-1px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><span>V</span>VOW Reviews</div>
+ <button class="outline" id="loginOpen">Admin Login</button>
+</header>
+
+<section class="hero">
+ <div>
+  <div class="eyebrow">YOUR FEEDBACK MATTERS</div>
+  <h1>We value your<br><span>honest review.</span></h1>
+  <p>Share your experience with VOW. Your feedback helps us improve our service and serve you better.</p>
+  <a class="btn primary" href="#review">Give a Rating →</a>
+  <p class="small">★★★★★ &nbsp; Simple, quick customer feedback</p>
+ </div>
+ <div class="preview">
+  <div class="eyebrow">VOW CUSTOMER CARE</div>
+  <div class="stars">★★★★★</div>
+  <h2>Your voice matters.</h2>
+  <p>Tell us what went well and what we can improve.</p>
+  <hr style="border:0;border-top:1px solid #e0e8f5">
+  <p>✓ Customer-first service<br>✓ Quick feedback form<br>✓ Every opinion matters</p>
+ </div>
+</section>
+
+<main>
+<section class="content" id="review">
+ <div class="center">
+  <div class="eyebrow">CUSTOMER FEEDBACK</div>
+  <h2>How was your experience?</h2>
+  <p>Fill in your details and select a star rating.</p>
+ </div>
+ <form id="reviewForm" class="panel grid">
+  <label>Full name *
+   <input name="name" required maxlength="100" placeholder="Your full name">
+  </label>
+  <label>Mobile number *
+   <input name="phone" type="tel" required maxlength="20" placeholder="Your phone number">
+  </label>
+  <label class="wide">Service received *
+   <input name="service" required maxlength="120" placeholder="e.g. PAN Card, Admission, Printing">
+  </label>
+  <div class="wide rate">
+   <b>Your rating *</b><br>
+   <button type="button" data-star="1" aria-label="1 star">★</button>
+   <button type="button" data-star="2" aria-label="2 stars">★</button>
+   <button type="button" data-star="3" aria-label="3 stars">★</button>
+   <button type="button" data-star="4" aria-label="4 stars">★</button>
+   <button type="button" data-star="5" aria-label="5 stars">★</button>
+   <div class="small" id="ratingText">Select 1 to 5 stars</div>
+  </div>
+  <label class="wide">Your review
+   <textarea name="review" rows="4" maxlength="1500" placeholder="Write about your experience (optional)"></textarea>
+  </label>
+  <label class="wide" style="font-weight:400">
+   <input type="checkbox" name="consent" required style="display:inline;width:auto;margin-right:8px">
+   I agree that VOW may store these details to manage feedback and customer service.
+  </label>
+  <div class="wide">
+   <button class="primary" id="submitReview" type="submit">Submit Review →</button>
+   <p class="small">Your review is sent to our feedback system.</p>
+  </div>
+ </form>
+</section>
+
+<section class="content hidden" id="admin">
+ <div class="eyebrow">PRIVATE WORKSPACE</div>
+ <h2>Customer Management</h2>
+ <p>Review feedback, save customer records and call customers.</p>
+ <div class="metrics">
+  <div class="metric">Customers<strong id="totalCustomers">0</strong></div>
+  <div class="metric">Reviews<strong id="totalReviews">0</strong></div>
+  <div class="metric">Average rating<strong id="averageRating">—</strong></div>
+ </div>
+ <div class="toolbar">
+  <input id="search" placeholder="Search customer, phone or service">
+  <button class="primary" id="addOpen">+ Add Customer</button>
+  <button class="outline" id="export">Export CSV</button>
+  <button class="outline" id="logout">Log out</button>
+ </div>
+ <div class="tablewrap">
+  <table><thead><tr><th>Name / Review</th><th>Phone</th><th>Service</th><th>Rating</th><th>Date</th><th>Action</th></tr></thead>
+  <tbody id="records"><tr><td colspan="6">Sign in to load records.</td></tr></tbody></table>
+ </div>
+</section>
+</main>
+
+<footer><b>VOW Reviews</b><span>Vihan Online Work · Customer feedback</span></footer>
+<div id="message" role="status"></div>
+
+<div class="modal hidden" id="loginModal">
+ <form class="panel" id="loginForm">
+  <button type="button" class="outline" id="loginClose" style="float:right;padding:5px 10px">✕</button>
+  <div class="eyebrow">ADMIN ACCESS</div><h2>Sign in</h2>
+  <label>Admin email<input type="email" name="email" required autocomplete="username"></label>
+  <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+  <button class="primary" type="submit">Login securely</button>
+  <p class="small">Admin accounts are created privately in Supabase. There is no public admin sign-up.</p>
+ </form>
+</div>
+
+<div class="modal hidden" id="customerModal">
+ <form class="panel" id="customerForm">
+  <button type="button" class="outline" id="customerClose" style="float:right;padding:5px 10px">✕</button>
+  <div class="eyebrow">CUSTOMER RECORD</div><h2>Add Customer</h2>
+  <label>Full name *<input name="name" required maxlength="100"></label>
+  <label>Phone number *<input name="phone" required maxlength="20"></label>
+  <label>Service *<input name="service" required maxlength="120"></label>
+  <label>Notes<textarea name="notes" rows="3" maxlength="1000"></textarea></label>
+  <button class="primary" type="submit">Save customer</button>
+ </form>
+</div>
+
+<script>
+// STEP 3: Replace these two placeholders with your Supabase project details.
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY";
+const configured = SUPABASE_URL.startsWith("https://") &&
+ !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
+const db = configured ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
+let rating=0, customers=[], reviews=[], user=null;
+const $=s=>document.querySelector(s);
+function notify(s){const m=$("#message");m.textContent=s;m.style.display="block";clearTimeout(window.msgTimer);window.msgTimer=setTimeout(()=>m.style.display="none",3500)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function needDB(){if(!db){notify("Cloud setup pending. Connect Supabase in Step 3 first.");return false}return true}
+function show(id,on=true){$("#"+id).classList.toggle("hidden",!on)}
+$("#loginOpen").onclick=()=>show("loginModal");
+$("#loginClose").onclick=()=>show("loginModal",false);
+$("#customerClose").onclick=()=>show("customerModal",false);
+$("#addOpen").onclick=()=>show("customerModal");
+document.querySelectorAll("[data-star]").forEach(b=>b.onclick=()=>{
+ rating=Number(b.dataset.star);
+ document.querySelectorAll("[data-star]").forEach(x=>x.classList.toggle("active",Number(x.dataset.star)<=rating));
+ $("#ratingText").textContent=["","Poor","Fair","Good","Very good","Excellent"][rating];
+});
+$("#reviewForm").onsubmit=async e=>{
+ e.preventDefault();if(!rating){notify("Please choose a star rating.");return}if(!needDB())return;
+ const f=new FormData(e.target), btn=$("#submitReview");btn.disabled=true;
+ try{
+  const {error}=await db.from("reviews").insert({
+   name:String(f.get("name")).trim(),phone:String(f.get("phone")).trim(),
+   service:String(f.get("service")).trim(),rating,
+   review:String(f.get("review")||"").trim()
+  });
+  if(error)throw error;
+  e.target.reset();rating=0;
+  document.querySelectorAll("[data-star]").forEach(x=>x.classList.remove("active"));
+  $("#ratingText").textContent="Select 1 to 5 stars";notify("Thank you! Your review was submitted.");
+ }catch(err){notify("Review could not be saved: "+err.message)}
+ finally{btn.disabled=false}
+};
+$("#loginForm").onsubmit=async e=>{
+ e.preventDefault();if(!needDB())return;
+ const f=new FormData(e.target);
+ const {data,error}=await db.auth.signInWithPassword({email:String(f.get("email")).trim(),password:String(f.get("password"))});
+ if(error){notify("Login failed: "+error.message);return}
+ user=data.user;show("loginModal",false);show("admin");await loadRecords();$("#admin").scrollIntoView({behavior:"smooth"});
+};
+$("#logout").onclick=async()=>{if(db)await db.auth.signOut();user=null;show("admin",false);notify("Logged out.")};
+async function loadRecords(){
+ if(!db||!user)return;
+ const [c,r]=await Promise.all([
+  db.from("customers").select("*").order("created_at",{ascending:false}),
+  db.from("reviews").select("*").order("created_at",{ascending:false})
+ ]);
+ if(c.error||r.error){notify((c.error||r.error).message);return}
+ customers=c.data||[];reviews=r.data||[];render();
+}
+function render(){
+ $("#totalCustomers").textContent=customers.length;
+ $("#totalReviews").textContent=reviews.length;
+ $("#averageRating").textContent=reviews.length?(reviews.reduce((a,x)=>a+Number(x.rating),0)/reviews.length).toFixed(1)+" / 5":"—";
+ const q=$("#search").value.toLowerCase().trim();
+ const rows=[
+  ...customers.map(x=>({...x,type:"customer"})),
+  ...reviews.filter(r=>!customers.some(c=>c.phone===r.phone)).map(x=>({...x,type:"review"}))
+ ].filter(x=>[x.name,x.phone,x.service,x.review].join(" ").toLowerCase().includes(q));
+ $("#records").innerHTML=rows.map(x=>`<tr>
+ <td><b>${esc(x.name)}</b>${x.review?`<div class="small">${esc(x.review)}</div>`:""}</td>
+ <td><a href="tel:${esc(x.phone)}">${esc(x.phone)}</a></td>
+ <td>${esc(x.service)}</td>
+ <td style="color:#e5a51c">${x.rating?"★".repeat(Number(x.rating)):"—"}</td>
+ <td>${x.created_at?new Date(x.created_at).toLocaleDateString():"—"}</td>
+ <td>${x.type==="review"?`<button class="outline" data-save="${esc(x.id)}">Save customer</button>`:`<a href="tel:${esc(x.phone)}">Call</a> <button class="outline" data-del="${esc(x.id)}">Delete</button>`}</td>
+ </tr>`).join("")||'<tr><td colspan="6">No records found.</td></tr>';
+ document.querySelectorAll("[data-save]").forEach(b=>b.onclick=async()=>{
+  const x=reviews.find(v=>v.id===b.dataset.save);if(!x)return;
+  const {error}=await db.from("customers").insert({name:x.name,phone:x.phone,service:x.service,notes:"Added from customer review"});
+  if(error)notify(error.message);else{notify("Customer saved.");await loadRecords()}
+ });
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
+  if(!confirm("Delete this customer record?"))return;
+  const {error}=await db.from("customers").delete().eq("id",b.dataset.del);
+  if(error)notify(error.message);else{notify("Customer deleted.");await loadRecords()}
+ });
+}
+$("#search").oninput=render;
+$("#customerForm").onsubmit=async e=>{
+ e.preventDefault();if(!needDB()||!user)return;
+ const f=new FormData(e.target);
+ const {error}=await db.from("customers").insert({
+  name:String(f.get("name")).trim(),phone:String(f.get("phone")).trim(),
+  service:String(f.get("service")).trim(),notes:String(f.get("notes")||""),
+  created_by:user.id
+ });
+ if(error){notify(error.message);return}
+ e.target.reset();show("customerModal",false);notify("Customer saved to cloud.");await loadRecords();
+};
+$("#export").onclick=()=>{
+ if(!user){notify("Please log in first.");return}
+ const all=[...customers.map(x=>({...x,type:"Customer"})),...reviews.map(x=>({...x,type:"Review"}))];
+ const cols=["type","name","phone","service","rating","review","notes","created_at"];
+ const csv=[cols.join(","),...all.map(x=>cols.map(k=>'"'+String(x[k]??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="vow-customer-records.csv";a.click();URL.revokeObjectURL(a.href);
+};
+(async()=>{if(!db)return;const {data}=await db.auth.getSession();if(data.session){user=data.session.user;show("admin");await loadRecords()}})();
+</script>
+</body>
+</html>
